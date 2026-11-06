@@ -30,14 +30,32 @@ project moves.
 
 Full evidence and method: [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md).
 
+## Getting the zip
+
+**Download the release from [Modrinth](https://modrinth.com/shader/solas-shader) or
+[CurseForge](https://www.curseforge.com/minecraft/shaders/solas-shader).** Those are the pack's
+only official sources, its author asks that it not be mirrored, and this repository ships none
+of it. A release zip is already built correctly — drop it straight in.
+
+**Do not use GitHub's "Download ZIP".** It wraps everything in a `Solas-Shader-main/` folder,
+so the pack ends up at `Solas-Shader-main/shaders/` instead of `shaders/`, and Horizon rejects
+it with *"no shaders folder at the root of the pack"*. Verified here, not guessed.
+
+If you do have the source — a GitHub zip, or a `git clone` — repack it:
+
+```bash
+scripts/make-pack-zip.sh ~/Downloads/Solas-Shader-main.zip
+```
+
+It finds the real pack root, zips the contents so `shaders/` sits at the top, drops git and
+macOS clutter, and then runs the checker on the result so you know it is good before you move
+it. Works on a folder or a zip.
+
 ## Installing
 
-1. Get Solas Shader from one of its two official sources — [CurseForge](https://www.curseforge.com/minecraft/shaders/solas-shader)
-   or [Modrinth](https://modrinth.com/shader/solas-shader). Please use those: the pack's author
-   asks that it not be mirrored, and this repository ships none of it.
-2. Drop the `.zip` (or the unzipped folder) into `shaderpacks/`, beside `options.txt` in your
+1. Put the zip (or the unzipped pack folder) in `shaderpacks/`, beside `options.txt` in your
    Horizon instance.
-3. In game: **Options → Video Settings → Shaders → Shader Packs…**, and pick it. Solas's own
+2. In game: **Options → Video Settings → Shaders → Shader Packs…**, and pick it. Solas's own
    settings screens appear under **Shader Options…**.
 
 Horizon's shader-pack support is being rebuilt and, per its
@@ -92,7 +110,8 @@ the same.
 
 ```
 tools/horizon-pack-check/   the checker (Rust; pulls horizon-shaders from git)
-scripts/check-solas.sh      convenience wrapper
+scripts/check-solas.sh      convenience wrapper for the checker
+scripts/make-pack-zip.sh    build a Horizon-ready zip from your own copy
 docs/COMPATIBILITY.md       the full report, method and raw results
 docs/LICENSING.md           why no Solas source is vendored here
 ```

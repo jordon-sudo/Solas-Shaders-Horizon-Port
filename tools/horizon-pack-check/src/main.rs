@@ -65,8 +65,11 @@ fn main() -> ExitCode {
         return ExitCode::from(2);
     }
 
-    // A path given straight at a pack folder: its parent is what lists it.
-    let mut found = if root.join("shaders").is_dir() {
+    // A path given straight at one pack — a zip, or a folder with `shaders/` in it — rather
+    // than at a folder of packs. `discover` only scans a directory, so ask it about the
+    // parent and keep the one entry the user meant.
+    let one_pack = root.is_file() || root.join("shaders").is_dir();
+    let mut found = if one_pack {
         let name = root.file_name().unwrap_or_default().to_owned();
         root.parent()
             .map(|parent| {
@@ -94,8 +97,7 @@ fn main() -> ExitCode {
     // subfolders (`shaders/`, `drm/`...) are not packs, so only keep what reads cleanly —
     // and don't go looking inside a pack the user pointed at directly.
     let known: Vec<PathBuf> = found.iter().map(|f| f.path.clone()).collect();
-    let inside_a_pack = root.join("shaders").is_dir();
-    if let Some(entries) = std::fs::read_dir(&root).ok().filter(|_| !inside_a_pack) {
+    if let Some(entries) = std::fs::read_dir(&root).ok().filter(|_| !one_pack) {
         for sub in entries.flatten() {
             let path = sub.path();
             if path.is_dir() && !known.contains(&path) {
