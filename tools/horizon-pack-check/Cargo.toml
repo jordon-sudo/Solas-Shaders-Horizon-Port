@@ -1,0 +1,39 @@
+[package]
+name = "horizon-pack-check"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+description = "Checks whether an Iris/OptiFine shader pack loads and translates on Horizon's renderer"
+publish = false
+
+[dependencies]
+# Horizon's clean-room reader and GLSL->naga translator for the `shaders/` pack format.
+# Pinned to the revision this checker's results were recorded against.
+horizon-shaders = { git = "https://github.com/horizon-rust/horizon", rev = "69fab597a6f0e8a6ce524d38d1b73e599e343034" }
+
+# The shader writers wgpu uses on each platform, so a module is checked the way the
+# backends will actually consume it. See [patch.crates-io] below: this must be Horizon's
+# patched naga, not the crates.io one, or the check reports failures the game never sees.
+naga = { version = "30.0.1", features = [
+    "glsl-in",
+    "wgsl-in",
+    "spv-out",
+    "hlsl-out",
+    "glsl-out",
+    "msl-out",
+] }
+
+[[bin]]
+name = "horizon-pack-check"
+path = "src/main.rs"
+
+# Horizon builds against a patched naga: "naga 30.0.1, with the fixes to its GLSL frontend
+# that shader packs need" (horizon's root Cargo.toml, THIRD_PARTY_NOTICES.md). It lives at
+# third_party/naga in the same repo and is excluded from Horizon's workspace.
+#
+# Without this patch the stock crates.io naga rejects GLSL that the game accepts — notably
+# `textureGather`, which its frontend does not know — and the check invents failures for
+# packs that run perfectly. The pack is not at fault; the checker would be.
+[patch.crates-io]
+naga = { git = "https://github.com/horizon-rust/horizon", rev = "69fab597a6f0e8a6ce524d38d1b73e599e343034" }

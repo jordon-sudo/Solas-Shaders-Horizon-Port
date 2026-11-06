@@ -1,0 +1,7 @@
+# Rust build output
+target/
+
+# Shader packs are never committed here: Solas is all-rights-reserved and must come
+# from CurseForge or Modrinth. See docs/LICENSING.md.
+shaderpacks/
+*.zip
