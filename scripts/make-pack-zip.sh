@@ -53,21 +53,70 @@ else
     search_root="$source_path"
 fi
 
-# Find the folder that holds `shaders/` — the pack root. It is either the folder itself or,
-# for a GitHub zip or a clone sitting in a parent, one level down.
-pack_root=""
-if [ -d "$search_root/shaders" ]; then
-    pack_root="$search_root"
-else
-    while IFS= read -r candidate; do
-        pack_root="$(dirname "$candidate")"
-        break
-    done < <(find "$search_root" -maxdepth 2 -type d -name shaders 2>/dev/null | sort)
+# A zip holding the real zip is a common way for a pack to arrive: a browser or a file
+# manager repacks the download, or the uploader zipped the folder they downloaded. Unpack
+# any zips found inside, a couple of rounds deep, so that case just works.
+#
+# Only ever inside our own temp copy: this deletes the zips it expands, and must never
+# touch the user's folder. A folder input is left exactly as it was found.
+if [ "$search_root" = "$work/unpacked" ] && command -v unzip >/dev/null 2>&1; then
+    for _ in 1 2; do
+        inner="$(find "$search_root" -type f -name '*.zip' -print -quit 2>/dev/null)"
+        [ -n "$inner" ] || break
+        # Unpack each beside itself, then drop the zip so it is not found again.
+        while IFS= read -r z; do
+            unzip -q -o "$z" -d "${z%.zip}-unpacked" 2>/dev/null || true
+            rm -f "$z"
+        done < <(find "$search_root" -type f -name '*.zip' 2>/dev/null)
+    done
 fi
 
+# Find the folder that holds `shaders/` — the pack root. Downloads nest it to varying
+# depths: a release zip not at all, GitHub's one deep, and a zip someone re-zipped (or a
+# browser that unpacked and repacked it) deeper still. So search at any depth and take the
+# shallowest real match.
+#
+# "Real" matters: a RESOURCE pack has `assets/<namespace>/shaders/` holding core shaders,
+# which is not a shader pack root. A shader pack's `shaders/` holds stage files or
+# `shaders.properties`, and is never under `assets/`.
+looks_like_a_pack() {
+    local dir="$1"
+    case "$dir" in */assets/*) return 1 ;; esac
+    [ -f "$dir/shaders.properties" ] && return 0
+    [ -n "$(find "$dir" -maxdepth 1 -type f \
+        \( -name '*.fsh' -o -name '*.vsh' -o -name '*.gsh' -o -name '*.csh' \) \
+        -print -quit 2>/dev/null)" ]
+}
+
+pack_root=""
+best_depth=-1
+while IFS= read -r candidate; do
+    looks_like_a_pack "$candidate" || continue
+    # Depth = number of path separators, so the shallowest match wins.
+    depth=$(printf '%s' "${candidate#"$search_root"}" | tr -cd '/' | wc -c)
+    if [ "$best_depth" -lt 0 ] || [ "$depth" -lt "$best_depth" ]; then
+        best_depth="$depth"
+        pack_root="$(dirname "$candidate")"
+    fi
+done < <(find "$search_root" -type d -name shaders 2>/dev/null | sort)
+
 if [ -z "$pack_root" ]; then
-    echo "error: no 'shaders' folder found in $source_path" >&2
-    echo "       that path does not look like an Iris/OptiFine shader pack." >&2
+    {
+        echo "error: no shader pack found in $source_path"
+        echo
+        echo "Looked for a 'shaders' folder holding stage files (.fsh/.vsh) or"
+        echo "shaders.properties, at any depth. What is actually in there:"
+        echo
+        find "$search_root" -maxdepth 3 \( -type d -o -type f \) 2>/dev/null \
+            | sed "s|^$search_root/\{0,1\}||" | grep -v '^$' | sort | head -25 \
+            | sed 's/^/  /'
+        total=$(find "$search_root" -mindepth 1 2>/dev/null | wc -l)
+        [ "$total" -gt 25 ] && echo "  ... $((total - 25)) more"
+        echo
+        echo "If this is a shader pack, it may be double-zipped: unzip it and point this at"
+        echo "the folder instead. If it is a RESOURCE pack (it has an 'assets' folder and a"
+        echo "pack.mcmeta), it belongs in resourcepacks/, not shaderpacks/."
+    } >&2
     exit 2
 fi
 

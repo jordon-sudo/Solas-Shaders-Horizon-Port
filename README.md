@@ -47,9 +47,15 @@ If you do have the source — a GitHub zip, or a `git clone` — repack it:
 scripts/make-pack-zip.sh ~/Downloads/Solas-Shader-main.zip
 ```
 
-It finds the real pack root, zips the contents so `shaders/` sits at the top, drops git and
-macOS clutter, and then runs the checker on the result so you know it is good before you move
-it. Works on a folder or a zip.
+It finds the real pack root at whatever depth it sits, zips the contents so `shaders/` is at
+the top, drops git and macOS clutter, and runs the checker on the result so you know it is good
+before you move it.
+
+It handles the shapes these downloads actually arrive in — a release zip, GitHub's wrapped zip,
+a zip nested several folders deep, a zip containing the real zip, a `git clone`, or a plain pack
+folder. If it can't find a pack it prints what *is* in there, so you can see why. It never
+modifies the folder you point it at. Pointed at a resource pack by mistake, it says so and tells
+you that belongs in `resourcepacks/`.
 
 ## Installing
 
