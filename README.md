@@ -1,9 +1,17 @@
 # Solas Shader on Horizon
 
-Porting [Solas Shader](https://github.com/Septonious/Solas-Shader) to
-[Horizon](https://github.com/horizon-rust/horizon), the Rust rewrite of Minecraft: Java Edition.
+Two things live here, for [Horizon](https://github.com/horizon-rust/horizon), the Rust rewrite
+of Minecraft: Java Edition:
 
-## The short version: there is nothing to port
+1. **[`pack/`](pack/) — Solas Horizon**, a shader pack written in Horizon's own WGSL format,
+   styled after [Solas Shader](https://github.com/Septonious/Solas-Shader). Drop
+   `pack/solas_horizon-0.1.0.hshader` into `shaderpacks/` and pick it. It passes Horizon's own
+   `horizon-shader check` on all three graphics backends. **[Details](pack/README.md).**
+2. **[`tools/horizon-pack-check`](tools/horizon-pack-check/)** — a checker that tells you
+   whether any Iris/OptiFine pack (Solas included) loads and translates on Horizon, with no GPU
+   or game build needed.
+
+## Running the original Solas on Horizon
 
 Horizon reads the Iris/OptiFine `shaders/` pack format natively. It has a clean-room
 implementation of that format — `crates/horizon-shaders`, about 22k lines — that reads a pack's
