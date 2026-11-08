@@ -3,7 +3,7 @@
 A fantasy-stylised pack written in Horizon's **own** shader format (WGSL), styled after
 [Solas Shader](https://github.com/Septonious/Solas-Shader).
 
-**Install:** drop `solas_horizon-0.1.0.hshader` into `shaderpacks/` (Options → Video Settings →
+**Install:** drop `solas_horizon-0.2.0.hshader` into `shaderpacks/` (Options → Video Settings →
 Shaders → Open Pack Folder), then pick **Solas Horizon** in the list. Its settings are under
 **Shader Options…**.
 
@@ -13,11 +13,25 @@ Shaders → Open Pack Folder), then pick **Solas Horizon** in the list. Its sett
 | --- | --- |
 | **Sky** | deeper gradient than vanilla, warm band around a low sun, stars on a jittered lattice, Milky Way, aurora |
 | **Surfaces** | soft shadows (9-tap PCF), coloured shadows through glass and water, sky/sun colour through the day, subsurface scattering on foliage, LabPBR normal and specular maps when a resource pack ships them |
-| **Block light** | coloured per block — soul torches blue, redstone red, sea lanterns green, end rods pale blue; fireflies carry their own light |
+| **Block light** | coloured per block — soul torches blue, redstone red, sea lanterns green, end rods pale blue, crying obsidian violet; fireflies carry their own light |
+| **Held light** | a torch or lantern you carry lights the world around you, in its own colour (OptiFine/Iris dynamic hand light) — **see below** |
 | **Weather** | rain and snow lit by the sky, fading with distance |
 | **Post** | volumetric light shafts marched against the shadow map, bloom with a soft knee, ACES filmic tonemap, auto exposure, vignette, chromatic aberration |
 
-34 options across four pages, including a shadow switch that removes the shadow pass entirely.
+36 options across four pages, including a shadow switch that removes the shadow pass entirely.
+
+## Held light needs one setting turned on
+
+The pack lights whatever Horizon reports as a dynamic light source — a torch or lantern held in
+either hand, an item dropped on the ground, an entity on fire — in its `[[lights]]` colour.
+
+**Horizon's own dynamic lights are off by default**, because they are not vanilla behaviour.
+Turn them on at **Options → Video Settings → Dynamic lights**. Until you do, Horizon reports no
+such lights, the pack's held light is simply zero, and the option below does nothing. That is
+Horizon's switch, not something a shader pack can set for you.
+
+With it on, **Held light** and **Held light strength** on the Lighting page control how much it
+contributes.
 
 ## On glowing blocks
 
@@ -45,9 +59,9 @@ signature, and translated for Vulkan (SPIR-V), Metal (MSL) and DirectX 12 (HLSL)
 option at its default, minimum and maximum.
 
 ```
-solas_horizon 0.1.0 (shader API 0.1): ok
+solas_horizon 0.2.0 (shader API 0.1): ok
   sky       Sky                             651 expressions, 0 texture reads
-  material  Surfaces                       1070 expressions, 5 texture reads
+  material  Surfaces                       1078 expressions, 5 texture reads
   weather   Rain and snow                   367 expressions, 0 texture reads
   post      Light shafts                    702 expressions, 5 texture reads
   post      Bloom                           698 expressions, 5 texture reads

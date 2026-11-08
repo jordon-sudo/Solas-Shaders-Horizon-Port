@@ -12,6 +12,8 @@ override shadows_on: bool = true;
 override shadow_softness: f32 = 1.0;
 override block_light_strength: f32 = 1.0;
 override block_light_color_on: bool = true;
+override hand_light_on: bool = true;
+override hand_light_strength: f32 = 1.0;
 override ambient_strength: f32 = 1.0;
 override ao_strength: f32 = 0.85;
 override sss_strength: f32 = 0.7;
@@ -126,8 +128,20 @@ fn material(input: MaterialInput) -> Surface {
         let tint = block_light_color(input.position);
         block *= mix(vec3<f32>(1.0), tint.rgb, saturate(tint.a));
     }
-    // Lights carried or dropped nearby, and mod lights.
-    block += input.colored_light * block_light_strength;
+    // Dynamic ("held") light: a torch, lantern or other source carried in either hand,
+    // dropped as an item, or an entity on fire, lighting what is around it in its
+    // `[[lights]]` colour. OptiFine and Iris call this dynamic hand light; Solas calls it
+    // DYNAMIC_HANDLIGHT.
+    //
+    // Horizon feeds it through `colored_light`, but only while its own **Dynamic lights**
+    // setting is on (Options > Video Settings; off by default, because it is not vanilla).
+    // With it off `colored_light` is 0, so this term simply disappears and costs nothing.
+    if hand_light_on {
+        // Squared so the near field is strong and it falls away quickly, the way a torch
+        // in hand reads, rather than flooding the whole view evenly.
+        let held = input.colored_light * hand_light_strength;
+        block += held * (0.45 + 0.55 * saturate(luminance(held)));
+    }
 
     // --- emission -----------------------------------------------------------------------
     // Only real light sources. See the note at the top of this file.

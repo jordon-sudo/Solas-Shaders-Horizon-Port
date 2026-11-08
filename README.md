@@ -5,7 +5,7 @@ of Minecraft: Java Edition:
 
 1. **[`pack/`](pack/) — Solas Horizon**, a shader pack written in Horizon's own WGSL format,
    styled after [Solas Shader](https://github.com/Septonious/Solas-Shader). Drop
-   `pack/solas_horizon-0.1.0.hshader` into `shaderpacks/` and pick it. It passes Horizon's own
+   `pack/solas_horizon-0.2.0.hshader` into `shaderpacks/` and pick it. It passes Horizon's own
    `horizon-shader check` on all three graphics backends. **[Details](pack/README.md).**
 2. **[`tools/horizon-pack-check`](tools/horizon-pack-check/)** — a checker that tells you
    whether any Iris/OptiFine pack (Solas included) loads and translates on Horizon, with no GPU
