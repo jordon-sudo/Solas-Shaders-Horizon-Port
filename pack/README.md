@@ -7,6 +7,27 @@ A fantasy-stylised pack written in Horizon's **own** shader format (WGSL), style
 Shaders → Open Pack Folder), then pick **Solas Horizon** in the list. Its settings are under
 **Shader Options…**.
 
+## Which file to use
+
+Horizon's shader API is young and gains features most days, so a pack can be **refused** by a
+build older than the features it uses. A refused pack looks like one that will not turn on: you
+pick it and nothing happens. The game says why **in the chat** when it refuses one — that
+message names the exact key or stage it did not understand.
+
+| File | Needs a Horizon build from | Leaves out |
+| --- | --- | --- |
+| `solas_horizon-0.2.0.hshader` | **2026-11-03** or later | nothing |
+| `solas_horizon_compat-0.2.0.hshader` | **2026-11-01** or later | held light, shadow size/off options, firefly lights |
+
+Try the full one first. If it will not turn on, use the compatibility one. If **that** will not
+turn on either, your build predates the parts of the API this pack is built on and the fix is to
+update Horizon (its launcher tracks Nightlies).
+
+What forces the dates: `[shadow] option`/`resolution_option`/`distance_option` landed 2026-11-03;
+`[[particle_lights]]` and `MaterialInput.colored_light`, which the held light reads, landed
+2026-11-02; `[[materials]]`, `[sky] stars`, `[[pages]]` and the `[weather]` stage landed
+2026-11-01.
+
 ## What it does
 
 | | |

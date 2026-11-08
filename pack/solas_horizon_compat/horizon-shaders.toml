@@ -1,0 +1,425 @@
+schema = 1
+id = "solas_horizon_compat"
+name = "Solas Horizon (compatibility)"
+version = "0.2.0"
+api = "0.1"
+description = "Solas Horizon without the newest API features, for Horizon builds from 2026-11-01 up. No held light, no shadow-size options."
+authors = ["Solas-Shaders-Horizon-Port contributors"]
+license = "MIT"
+shared = ["common.wgsl"]
+
+[sky]
+file = "sky.wgsl"
+name = "Sky"
+# The pack draws its own stars, so vanilla's would double up.
+stars = false
+
+[material]
+file = "material.wgsl"
+name = "Surfaces"
+
+[weather]
+file = "weather.wgsl"
+name = "Rain and snow"
+
+[shadow]
+resolution = 2048
+distance = 128.0
+# Leaves cast a whole shadow rather than a lace of cutouts: cheaper and calmer.
+solid_materials = [10]
+
+[[post]]
+file = "post/shafts.wgsl"
+name = "Light shafts"
+
+[[post]]
+file = "post/bloom.wgsl"
+name = "Bloom"
+output = "bloom"
+scale = 0.25
+
+[[post]]
+file = "post/grade.wgsl"
+name = "Grade"
+
+[budget]
+gpu_ms = 3.0
+
+# --- what surfaces are ----------------------------------------------------------------
+
+[[materials]]
+id = 10
+sprites = ["block/*_leaves", "block/azalea*", "block/mangrove_roots*"]
+
+[[tags]]
+id = "foliage"
+sprites = [
+    "block/*_leaves",
+    "block/short_grass",
+    "block/tall_grass*",
+    "block/fern",
+    "block/large_fern*",
+    "block/*_sapling",
+    "block/vine",
+    "block/sugar_cane",
+    "block/lily_pad",
+    "block/*_crop",
+]
+
+[[tags]]
+id = "water"
+sprites = ["block/water_*"]
+
+# --- coloured block light -------------------------------------------------------------
+
+[[lights]]
+color = [0.35, 0.72, 1.0]
+blocks = ["soul_torch", "soul_wall_torch", "soul_lantern", "soul_fire", "soul_campfire"]
+
+[[lights]]
+color = [1.0, 0.22, 0.12]
+blocks = ["redstone_torch", "redstone_wall_torch", "redstone_block"]
+
+[[lights]]
+color = [0.45, 1.0, 0.65]
+blocks = ["sea_lantern", "glow_lichen", "sea_pickle", "verdant_froglight"]
+
+[[lights]]
+color = [1.0, 0.45, 0.85]
+blocks = ["pearlescent_froglight", "amethyst_cluster", "enchanting_table"]
+
+[[lights]]
+color = [0.55, 0.85, 1.0]
+blocks = ["end_rod", "beacon", "conduit"]
+
+[[lights]]
+color = [0.55, 0.30, 0.95]
+blocks = ["crying_obsidian", "respawn_anchor"]
+
+# Warm sources, and the catch-all for anything carried that is not named above.
+[[lights]]
+color = [1.0, 0.82, 0.45]
+blocks = ["torch", "wall_torch", "lantern", "campfire", "glowstone", "shroomlight",
+          "jack_o_lantern", "ochre_froglight", "fire", "lava", "magma_block", "copper_bulb",
+          "candle", "*_candle", "cave_vines", "cave_vines_plant", "furnace", "smoker",
+          "blast_furnace", "lava_cauldron", "sculk_catalyst", "small_amethyst_bud",
+          "medium_amethyst_bud", "large_amethyst_bud"]
+
+# --- the options page -------------------------------------------------------------------
+
+[[pages]]
+id = "main"
+name = "Solas Horizon"
+items = ["page:sky", "page:lighting", "page:post", "page:lens"]
+
+[[pages]]
+id = "sky"
+name = "Sky and weather"
+description = "The sky's colour, the night sky and the rain."
+items = [
+    "sky_brightness", "sunset_intensity",
+    "stars_on", "star_brightness",
+    "milky_way_on", "aurora_on",
+    "aurora_brightness", "rain_opacity",
+]
+
+[[pages]]
+id = "lighting"
+name = "Lighting"
+description = "Shadows, ambient light, block light and highlights."
+items = [
+    "shadows_on", "shadow_softness",
+    "ambient_strength", "ao_strength",
+    "sss_strength", "emission_strength",
+    "block_light_strength", "block_light_color_on",
+    "specular_on", "specular_strength",
+]
+
+[[pages]]
+id = "post"
+name = "Light shafts and bloom"
+description = "Volumetric light and the glow around bright things."
+items = [
+    "shafts_on", "shafts_strength",
+    "shafts_samples", "shafts_distance",
+    "bloom_on", "bloom_threshold",
+    "bloom_strength", "",
+]
+
+[[pages]]
+id = "lens"
+name = "Image"
+description = "Exposure, colour and the lens."
+items = [
+    "exposure", "auto_exposure",
+    "saturation", "contrast",
+    "vignette_on", "vignette_strength",
+    "aberration", "",
+]
+
+# --- the options themselves -------------------------------------------------------------
+
+[[options]]
+id = "sky_brightness"
+name = "Sky brightness"
+type = "float"
+default = 1.0
+min = 0.5
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "sunset_intensity"
+name = "Sunrise and sunset"
+description = "How warm and strong the band around a low sun is."
+type = "float"
+default = 0.8
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "stars_on"
+name = "Stars"
+type = "bool"
+default = true
+
+[[options]]
+id = "star_brightness"
+name = "Star brightness"
+type = "float"
+default = 0.7
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "milky_way_on"
+name = "Milky Way"
+type = "bool"
+default = true
+
+[[options]]
+id = "aurora_on"
+name = "Aurora"
+type = "bool"
+default = true
+
+[[options]]
+id = "aurora_brightness"
+name = "Aurora brightness"
+type = "float"
+default = 0.6
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "rain_opacity"
+name = "Rain opacity"
+type = "float"
+default = 0.8
+min = 0.0
+max = 1.5
+step = 0.05
+
+[[options]]
+id = "shadows_on"
+name = "Shadows"
+description = "Turning this off removes the shadow pass entirely, which is most of what the pack costs."
+type = "bool"
+default = true
+
+[[options]]
+id = "shadow_softness"
+name = "Shadow softness"
+type = "float"
+default = 1.0
+min = 0.0
+max = 4.0
+step = 0.1
+
+[[options]]
+id = "ambient_strength"
+name = "Ambient light"
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "ao_strength"
+name = "Ambient occlusion"
+type = "float"
+default = 0.85
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "sss_strength"
+name = "Subsurface scattering"
+description = "Light coming through leaves and grass from behind."
+type = "float"
+default = 0.7
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "emission_strength"
+name = "Emission"
+description = "How strongly real light sources shine. Only blocks that actually emit light are affected."
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "block_light_strength"
+name = "Block light"
+type = "float"
+default = 1.0
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "block_light_color_on"
+name = "Coloured block light"
+description = "Soul torches cast blue, redstone red, and so on."
+type = "bool"
+default = true
+
+[[options]]
+id = "specular_on"
+name = "Highlights"
+type = "bool"
+default = true
+
+[[options]]
+id = "specular_strength"
+name = "Highlight strength"
+type = "float"
+default = 0.6
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "shafts_on"
+name = "Light shafts"
+type = "bool"
+default = true
+
+[[options]]
+id = "shafts_strength"
+name = "Shaft strength"
+type = "float"
+default = 0.55
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "shafts_samples"
+name = "Shaft quality"
+description = "Steps along each ray. Higher is smoother and slower."
+type = "int"
+default = 12
+min = 2
+max = 24
+
+[[options]]
+id = "shafts_distance"
+name = "Shaft distance"
+type = "float"
+default = 48.0
+min = 8.0
+max = 128.0
+step = 4.0
+
+[[options]]
+id = "bloom_on"
+name = "Bloom"
+type = "bool"
+default = true
+
+[[options]]
+id = "bloom_threshold"
+name = "Bloom threshold"
+description = "How bright something must be before it bleeds."
+type = "float"
+default = 0.72
+min = 0.0
+max = 1.0
+step = 0.02
+
+[[options]]
+id = "bloom_strength"
+name = "Bloom strength"
+type = "float"
+default = 0.45
+min = 0.0
+max = 2.0
+step = 0.05
+
+[[options]]
+id = "exposure"
+name = "Exposure"
+type = "float"
+default = 1.0
+min = 0.25
+max = 3.0
+step = 0.05
+
+[[options]]
+id = "auto_exposure"
+name = "Auto exposure"
+description = "Opens up in caves and stops down in sunlight, following the light at the camera."
+type = "bool"
+default = true
+
+[[options]]
+id = "saturation"
+name = "Saturation"
+type = "float"
+default = 1.12
+min = 0.0
+max = 2.0
+step = 0.02
+
+[[options]]
+id = "contrast"
+name = "Contrast"
+type = "float"
+default = 1.06
+min = 0.5
+max = 2.0
+step = 0.02
+
+[[options]]
+id = "vignette_on"
+name = "Vignette"
+type = "bool"
+default = true
+
+[[options]]
+id = "vignette_strength"
+name = "Vignette strength"
+type = "float"
+default = 0.35
+min = 0.0
+max = 1.0
+step = 0.05
+
+[[options]]
+id = "aberration"
+name = "Chromatic aberration"
+type = "float"
+default = 0.25
+min = 0.0
+max = 2.0
+step = 0.05
